@@ -1,0 +1,13 @@
+# Реестр турбин ВЭС. Добавить турбину: `windcast add-turbine --id T3 --lat .. --lon ..`
+# cap — максимальная нормализованная мощность (потолок), history — CSV со SCADA (если есть).
+turbines:
+  - id: T1
+    lat: 43.645150
+    lon: 78.535604
+    cap: 0.99
+    history: "data/Dataset HackAlemAI для участников 11.03.2023-28.02.2026 - turbine 1.csv"
+  - id: T2
+    lat: 43.643198
+    lon: 78.538828
+    cap: 0.97
+    history: "data/Dataset HackAlemAI для участников 11.03.2023-28.02.2026 - turbine 2.csv"

@@ -1,0 +1,56 @@
+{
+  "T1_gfs": {
+    "file": "T1_gfs.parquet",
+    "sha256": "318fa4dc7271e7a12b191251694a37c9e349b9157b90554d8c147d1ca8b1bcb6",
+    "rows": 26136,
+    "from": "2023-03-10 00:00:00",
+    "to": "2026-03-02 23:00:00",
+    "downloaded_at": "2026-09-23T10:20:50+00:00",
+    "source": "https://previous-runs-api.open-meteo.com/v1/forecast"
+  },
+  "T1_icon": {
+    "file": "T1_icon.parquet",
+    "sha256": "56303e7df02487a3d075eb87ecb647c3717965f53d11ec945ca8af4fa8b33181",
+    "rows": 26136,
+    "from": "2023-03-10 00:00:00",
+    "to": "2026-03-02 23:00:00",
+    "downloaded_at": "2026-09-23T10:20:59+00:00",
+    "source": "https://previous-runs-api.open-meteo.com/v1/forecast"
+  },
+  "T1_ecmwf": {
+    "file": "T1_ecmwf.parquet",
+    "sha256": "ffb5eb883d021b10962f40c1dbc451506ce628cc54af03f9468bba1d862bc072",
+    "rows": 26136,
+    "from": "2023-03-10 00:00:00",
+    "to": "2026-03-02 23:00:00",
+    "downloaded_at": "2026-09-23T10:21:06+00:00",
+    "source": "https://previous-runs-api.open-meteo.com/v1/forecast"
+  },
+  "T2_gfs": {
+    "file": "T2_gfs.parquet",
+    "sha256": "318fa4dc7271e7a12b191251694a37c9e349b9157b90554d8c147d1ca8b1bcb6",
+    "rows": 26136,
+    "from": "2023-03-10 00:00:00",
+    "to": "2026-03-02 23:00:00",
+    "downloaded_at": "2026-09-23T10:21:11+00:00",
+    "source": "https://previous-runs-api.open-meteo.com/v1/forecast"
+  },
+  "T2_icon": {
+    "file": "T2_icon.parquet",
+    "sha256": "56303e7df02487a3d075eb87ecb647c3717965f53d11ec945ca8af4fa8b33181",
+    "rows": 26136,
+    "from": "2023-03-10 00:00:00",
+    "to": "2026-03-02 23:00:00",
+    "downloaded_at": "2026-09-23T10:21:15+00:00",
+    "source": "https://previous-runs-api.open-meteo.com/v1/forecast"
+  },
+  "T2_ecmwf": {
+    "file": "T2_ecmwf.parquet",
+    "sha256": "ffb5eb883d021b10962f40c1dbc451506ce628cc54af03f9468bba1d862bc072",
+    "rows": 26136,
+    "from": "2023-03-10 00:00:00",
+    "to": "2026-03-02 23:00:00",
+    "downloaded_at": "2026-09-23T10:22:07+00:00",
+    "source": "https://previous-runs-api.open-meteo.com/v1/forecast"
+  }
+}

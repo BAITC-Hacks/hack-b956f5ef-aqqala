@@ -1,0 +1,36 @@
+[project]
+name = "windcast"
+version = "0.1.0"
+description = "Agentic AI для почасового прогноза выработки ВЭС на 24–48 часов"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "pyarrow>=17",
+    "scikit-learn>=1.5",
+    "requests>=2.32",
+    "pyyaml>=6.0",
+    "joblib>=1.4",
+    "streamlit>=1.40",
+    "plotly>=5.24",
+    "openai>=1.50",
+    "python-dotenv>=1.0",
+    "tabulate>=0.10.0",
+]
+
+[project.scripts]
+windcast = "windcast.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/windcast"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
