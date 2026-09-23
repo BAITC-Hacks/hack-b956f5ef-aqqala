@@ -155,7 +155,7 @@ flowchart LR
 | Бэктест | [src/windcast/backtest.py](src/windcast/backtest.py) | Серия выпусков через агента, сводные таблицы |
 | Диагностика | [src/windcast/diagnostics.py](src/windcast/diagnostics.py) | Часовой пояс SCADA, точность погоды, потолок мощности |
 | CLI | [src/windcast/cli.py](src/windcast/cli.py) | Команды `download`, `train`, `validate`, `diagnose`, `forecast`, `backtest`, `add-turbine` |
-| Веб | [app.py](app.py) | Streamlit-интерфейс |
+| Веб | [app.py](app.py), [assets/glass.css](assets/glass.css), [.streamlit/config.toml](.streamlit/config.toml) | Streamlit-интерфейс; тёмная тема и стеклянный эффект |
 
 ## Установка и запуск
 

@@ -21,6 +21,8 @@ from windcast.turbines import Turbine, add_turbine, load_turbines, remove_turbin
 st.set_page_config(page_title="windcast — прогноз выработки ВЭС", page_icon=":material/wind_power:",
                    layout="wide")
 
+st.html(Path(__file__).parent / "assets" / "glass.css")  # стеклянный эффект и фон
+
 # Ключи LLM на Streamlit Cloud задаются в Secrets → переносим в окружение для windcast.agent.llm
 try:
     for k in ("LLM_PROVIDER", "LLM_MODEL", "OPENAI_API_KEY", "NVIDIA_API_KEY"):
@@ -29,8 +31,9 @@ try:
 except FileNotFoundError:
     pass
 
-COLORS = {"T1": "#60A5FA", "T2": "#F59E0B", TOTAL: "#1D4ED8"}
-BAND = "rgba(37, 99, 235, 0.12)"
+COLORS = {"T1": "#34D399", "T2": "#FBBF24", TOTAL: "#22D3EE"}
+BAND = "rgba(34, 211, 238, 0.14)"
+GRID = "rgba(148, 197, 255, 0.08)"
 FEB = OUTPUTS_DIR / "feb2026"
 VAL = OUTPUTS_DIR / "validation"
 
@@ -52,20 +55,25 @@ def forecast_chart(df: pd.DataFrame, height: int = 420, ticks: str = "%d.%m<br>%
     fig.add_trace(go.Scatter(x=tot.time_local, y=tot.p90, line=dict(width=0), showlegend=False, hoverinfo="skip"))
     fig.add_trace(go.Scatter(x=tot.time_local, y=tot.p10, fill="tonexty", fillcolor=BAND, line=dict(width=0),
                              name="ВЭС: интервал P10–P90", hovertemplate="%{y:.2f}"))
+    fig.add_trace(go.Scatter(x=tot.time_local, y=tot.p50, mode="lines", showlegend=False, hoverinfo="skip",
+                             line=dict(width=10, color="rgba(34, 211, 238, 0.18)", shape="spline")))
     for tb, g in df.groupby("turbine", sort=False):
         fig.add_trace(go.Scatter(x=g.time_local, y=g.p50, name=f"{tb}" if tb != TOTAL else "ВЭС (итог)",
                                  mode="lines", hovertemplate="%{y:.2f}",
-                                 line=dict(width=3 if tb == TOTAL else 1.5, color=COLORS.get(tb),
+                                 line=dict(width=3 if tb == TOTAL else 1.5, color=COLORS.get(tb), shape="spline",
                                            dash="solid" if tb == TOTAL else "dot")))
     return _style(fig, height, "Мощность, доля номинала", ticks)
 
 
 def _style(fig: go.Figure, height: int, ytitle: str, ticks: str = "%d.%m") -> go.Figure:
-    fig.update_layout(template="plotly_white", height=height, hovermode="x unified",
-                      font=dict(family="Inter, sans-serif", size=12, color="#0F172A"),
-                      margin=dict(t=10, l=10, r=10, b=10), yaxis=dict(title=ytitle, range=[0, 1.02], gridcolor="#EEF2F7"),
-                      xaxis=dict(title=f"Время ({LOCAL_TZ_LABEL})", gridcolor="#EEF2F7", tickformat=ticks,
-                                 hoverformat="%d.%m.%Y %H:%M"),
+    fig.update_layout(template="plotly_dark", height=height, hovermode="x unified",
+                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                      font=dict(family="Inter, sans-serif", size=12, color="#C7D5E8"),
+                      hoverlabel=dict(bgcolor="rgba(10,19,36,0.92)", bordercolor="#22D3EE", font_color="#E6EEF8"),
+                      margin=dict(t=10, l=10, r=10, b=10),
+                      yaxis=dict(title=ytitle, range=[0, 1.02], gridcolor=GRID, zeroline=False),
+                      xaxis=dict(title=f"Время ({LOCAL_TZ_LABEL})", gridcolor=GRID, tickformat=ticks,
+                                 hoverformat="%d.%m.%Y %H:%M", zeroline=False),
                       legend=dict(orientation="h", y=1.08, x=0, bgcolor="rgba(0,0,0,0)"))
     return fig
 
@@ -127,7 +135,7 @@ with tab_fc:
                 st.exception(e)
     res = st.session_state.get("res")
     if not res or res.get("result") is None:
-        with st.container(border=True):
+        with st.container(border=True, key="glass_1"):
             st.markdown("**:material/info: Как получить прогноз**")
             st.markdown(
                 "1. Слева выберите дату и время выпуска (например, 01.02.2026 10:00) и режим агента.\n"
@@ -151,7 +159,7 @@ with tab_fc:
                 st.caption(f"{u['calls']} запросов к LLM · {u['prompt_tokens']:,} + {u['completion_tokens']:,} токенов"
                            .replace(",", " "))
         kpis(df)
-        with st.container(border=True):
+        with st.container(border=True, key="glass_2"):
             st.markdown("**Почасовой прогноз мощности на 48 ч**")
             st.plotly_chart(forecast_chart(df), width="stretch")
 
@@ -188,16 +196,19 @@ with tab_test:
         st.caption("Воспроизведение теста «как в прошлом»: выпуски 31.01–27.02.2026 в 10:00 и 22:00, "
                    "для каждого часа — прогноз из самого свежего выпуска. Команда: `windcast backtest --offline`.")
         with st.container(horizontal=True):
-            st.metric("Выпусков прогноза", len(runs), border=True, height="stretch")
-            st.metric("Часов в тесте", tot.time_local.nunique(), border=True, height="stretch")
-            st.metric("Средняя мощность ВЭС", f"{tot.p50.mean():.2f}", border=True, height="stretch")
+            st.metric("Выпусков прогноза", len(runs), "31.01–27.02, 10:00 и 22:00", delta_color="off", delta_arrow="off",
+                      border=True, height="stretch")
+            st.metric("Часов в тесте", tot.time_local.nunique(), "01.02–28.02.2026", delta_color="off", delta_arrow="off",
+                      border=True, height="stretch")
+            st.metric("Средняя мощность ВЭС", f"{tot.p50.mean():.2f}", "доля номинала, P50", delta_color="off",
+                      delta_arrow="off", border=True, height="stretch")
             st.metric("Выработка за февраль", f"{tot.p50.sum():.0f}", "номинал·часов", delta_color="off", delta_arrow="off", border=True, height="stretch")
-        with st.container(border=True):
+        with st.container(border=True, key="glass_3"):
             st.markdown("**Февраль 2026 — почасовой прогноз P50 с интервалом P10–P90**")
             st.plotly_chart(forecast_chart(df, height=380, ticks="%d.%m"), width="stretch")
             st.download_button("Скачать прогноз за февраль (P50, CSV)", (FEB / "forecast_hourly_p50.csv").read_bytes(),
                                file_name="feb2026_forecast_p50.csv", mime="text/csv", icon=":material/download:")
-        with st.container(border=True):
+        with st.container(border=True, key="glass_4"):
             names = [r.name for r in runs]
             pick = st.selectbox("Отчёт агента по выпуску", names, index=len(names) - 1 if names else 0,
                                 format_func=lambda n: f"{pd.to_datetime(n, format='%Y%m%d_%H%M'):%d.%m.%Y %H:%M}")
@@ -222,15 +233,15 @@ with tab_val:
                     st.metric(f"{fold} · {hz.split(' ')[0]}", f"{g['p50']:.3f}", f"-{gain:.0%} к «погода → кривая»",
                               delta_color="inverse", border=True, height="stretch", help="NMAE модели по ВЭС")
         vf = pd.read_csv(VAL / "validation_forecasts.csv", parse_dates=["time_local"])
-        with st.container(border=True):
+        with st.container(border=True, key="glass_5"):
             fold = st.segmented_control("Период", list(vf.fold.unique()), default=vf.fold.unique()[0], required=True)
             g = vf[(vf.fold == fold) & (vf.turbine == TOTAL) & (vf.horizon.str.startswith("D+1"))].sort_values("time_local")
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=g.time_local, y=g.actual, name="Факт", line=dict(color="#0F172A", width=1.5)))
+            fig.add_trace(go.Scatter(x=g.time_local, y=g.actual, name="Факт", line=dict(color="#E6EEF8", width=1.3)))
             fig.add_trace(go.Scatter(x=g.time_local, y=g.p50, name="Модель P50 (на сутки вперёд)",
-                                     line=dict(color="#2563EB", width=2)))
+                                     line=dict(color="#22D3EE", width=2)))
             fig.add_trace(go.Scatter(x=g.time_local, y=g.curve, name="Погода → кривая мощности",
-                                     line=dict(color="#F59E0B", dash="dot", width=1.5)))
+                                     line=dict(color="#FBBF24", dash="dot", width=1.5)))
             st.plotly_chart(_style(fig, 380, "Мощность ВЭС, доля номинала"), width="stretch")
         with st.expander("Полные таблицы метрик", icon=":material/table_view:"):
             st.markdown((VAL / "validation.md").read_text(encoding="utf-8").split("\n", 2)[2])
@@ -242,13 +253,13 @@ with tab_tb:
     tbs = load_turbines()
     left, right = st.columns([3, 2])
     with left:
-        with st.container(border=True):
+        with st.container(border=True, key="glass_6"):
             st.markdown("**Турбины ВЭС**")
             st.dataframe(pd.DataFrame([{"ID": x.id, "Широта": x.lat, "Долгота": x.lon, "Потолок мощности": x.cap,
                                         "История SCADA": "есть" if x.history else "нет"} for x in tbs]),
                          hide_index=True, column_config={"Потолок мощности": st.column_config.NumberColumn(format="%.2f")})
-            st.map(pd.DataFrame({"lat": [x.lat for x in tbs], "lon": [x.lon for x in tbs]}), zoom=11, height=320,
-                   color="#2563EB")
+            st.map(pd.DataFrame({"lat": [x.lat for x in tbs], "lon": [x.lon for x in tbs]}), zoom=11, height=320, size=45,
+                   color="#22D3EE")
     with right:
         with st.form("add", border=True):
             st.markdown("**Добавить турбину**")
@@ -265,7 +276,7 @@ with tab_tb:
                     st.error(str(e), icon=":material/error:")
         extra = [x.id for x in load_turbines() if not x.history]
         if extra:
-            with st.container(border=True):
+            with st.container(border=True, key="glass_7"):
                 rm = st.selectbox("Удалить добавленную турбину", extra)
                 if st.button("Удалить", icon=":material/delete:"):
                     remove_turbine(rm)

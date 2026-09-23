@@ -1,35 +1,38 @@
 [browser]
 gatherUsageStats = false
 
+# Энергетическая тема: глубокий синий фон, бирюзово-зелёный акцент. Стеклянный эффект — в app.py (CSS).
 [theme]
-base = "light"
-primaryColor = "#2563EB"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F8FAFC"
-codeBackgroundColor = "#F1F5F9"
-textColor = "#0F172A"
-linkColor = "#2563EB"
-borderColor = "#E2E8F0"
+base = "dark"
+primaryColor = "#22D3EE"
+backgroundColor = "#0A1324"
+secondaryBackgroundColor = "#122038"
+codeBackgroundColor = "#0F1B30"
+textColor = "#E6EEF8"
+linkColor = "#67E8F9"
+borderColor = "#2A3B58"
 showWidgetBorder = true
-showSidebarBorder = true
-baseRadius = "8px"
-buttonRadius = "8px"
+showSidebarBorder = false
+baseRadius = "12px"
+buttonRadius = "10px"
 font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
 baseFontSize = 14
 headingFontSizes = ["30px", "22px", "18px", "16px", "14px", "12px"]
 headingFontWeights = [700, 600, 600, 600, 500, 500]
 linkUnderline = false
-blueColor = "#2563EB"
-greenColor = "#16A34A"
-orangeColor = "#EA580C"
-redColor = "#DC2626"
-yellowColor = "#CA8A04"
-grayColor = "#64748B"
-dataframeBorderColor = "#E2E8F0"
-dataframeHeaderBackgroundColor = "#F1F5F9"
+blueColor = "#38BDF8"
+greenColor = "#34D399"
+orangeColor = "#FB923C"
+redColor = "#F87171"
+yellowColor = "#FBBF24"
+grayColor = "#94A3B8"
+violetColor = "#A78BFA"
+dataframeBorderColor = "#2A3B58"
+dataframeHeaderBackgroundColor = "#122038"
+chartCategoricalColors = ["#22D3EE", "#34D399", "#60A5FA", "#FBBF24", "#A78BFA", "#F87171"]
 
 [theme.sidebar]
-backgroundColor = "#F8FAFC"
-secondaryBackgroundColor = "#FFFFFF"
-borderColor = "#E2E8F0"
+backgroundColor = "#0D182C"
+secondaryBackgroundColor = "#152643"
+borderColor = "#2A3B58"

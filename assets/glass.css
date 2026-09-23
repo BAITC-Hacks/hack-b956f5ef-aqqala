@@ -1,0 +1,138 @@
+/* windcast — энергетическая тема со стеклянным эффектом (glassmorphism).
+   Цвета и шрифты задаются в .streamlit/config.toml; здесь — фон, стекло и акценты. */
+
+:root {
+  --wc-cyan: #22d3ee;
+  --wc-green: #34d399;
+  --wc-blue: #3b82f6;
+  --wc-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02));
+  --wc-glass-border: rgba(148, 197, 255, 0.16);
+  --wc-glass-shadow: 0 10px 30px rgba(2, 8, 23, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* Фон: свечение «энергии» + тонкая инженерная сетка */
+.stApp {
+  background:
+    radial-gradient(1100px 600px at 8% -12%, rgba(34, 211, 238, 0.20), transparent 60%),
+    radial-gradient(900px 520px at 100% 4%, rgba(52, 211, 153, 0.14), transparent 55%),
+    radial-gradient(900px 700px at 55% 115%, rgba(59, 130, 246, 0.16), transparent 60%),
+    linear-gradient(rgba(148, 197, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 197, 255, 0.035) 1px, transparent 1px),
+    #0a1324;
+  background-size: auto, auto, auto, 44px 44px, 44px 44px, auto;
+  background-attachment: fixed;
+}
+
+[data-testid="stHeader"] {
+  background: transparent;
+}
+
+/* Боковая панель — матовое стекло */
+[data-testid="stSidebar"] {
+  background: rgba(10, 19, 36, 0.55) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-right: 1px solid var(--wc-glass-border);
+}
+[data-testid="stSidebar"] > div:first-child {
+  background: transparent !important;
+}
+
+/* Стеклянные карточки: контейнеры, метрики, формы, раскрывающиеся блоки */
+[class*="st-key-glass_"],
+[data-testid="stMetric"],
+[data-testid="stForm"],
+[data-testid="stExpander"] details {
+  background: var(--wc-glass) !important;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--wc-glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--wc-glass-shadow);
+}
+
+[class*="st-key-glass_"]:hover,
+[data-testid="stMetric"]:hover {
+  border-color: rgba(34, 211, 238, 0.35) !important;
+  box-shadow: var(--wc-glass-shadow), 0 0 24px rgba(34, 211, 238, 0.10);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Метрики: «энергетическая» полоса сверху и светящееся значение */
+[data-testid="stMetric"] {
+  position: relative;
+  overflow: hidden;
+  padding-top: 1rem !important;
+}
+[data-testid="stMetric"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--wc-cyan), var(--wc-green), transparent);
+  opacity: 0.85;
+}
+[data-testid="stMetricLabel"] p {
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem !important;
+  font-weight: 600;
+}
+[data-testid="stMetricValue"] {
+  color: #f1f7ff;
+  text-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
+}
+
+/* Заголовки с градиентом */
+[data-testid="stMain"] h1 {
+  background: linear-gradient(90deg, #e6f6ff 0%, var(--wc-cyan) 55%, var(--wc-green) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  letter-spacing: -0.02em;
+}
+[data-testid="stSidebar"] h3 {
+  background: linear-gradient(90deg, var(--wc-cyan), var(--wc-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+/* Основная кнопка — градиент и свечение */
+[data-testid="stBaseButton-primary"] {
+  background: linear-gradient(90deg, var(--wc-cyan), var(--wc-green)) !important;
+  color: #04111f !important;
+  border: none !important;
+  font-weight: 600;
+  box-shadow: 0 6px 22px rgba(34, 211, 238, 0.30);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+[data-testid="stBaseButton-primary"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(52, 211, 153, 0.40);
+}
+[data-testid="stBaseButton-primary"] p,
+[data-testid="stBaseButton-primary"] span {
+  color: #04111f !important;
+}
+
+/* Вкладки: стеклянная «капсула» */
+[data-testid="stTabs"] [role="tablist"] {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--wc-glass-border);
+  border-radius: 14px;
+  padding: 4px 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p {
+  color: var(--wc-cyan) !important;
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.45);
+}
+
+/* Графики и таблицы внутри стекла — без собственного фона */
+[data-testid="stPlotlyChart"],
+[data-testid="stDataFrame"] {
+  background: transparent !important;
+}
