@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 import datetime as dt
+import os
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -17,6 +18,14 @@ from windcast.model import WindModel
 from windcast.turbines import Turbine, add_turbine, load_turbines, remove_turbine
 
 st.set_page_config(page_title="Прогноз выработки ВЭС", page_icon="🌬️", layout="wide")
+
+# Ключи LLM на Streamlit Cloud задаются в Secrets → переносим в окружение для windcast.agent.llm
+try:
+    for k in ("LLM_PROVIDER", "LLM_MODEL", "OPENAI_API_KEY", "NVIDIA_API_KEY"):
+        if k in st.secrets:
+            os.environ[k] = str(st.secrets[k])
+except FileNotFoundError:
+    pass
 
 COLORS = {"T1": "#2a78d6", "T2": "#e8742f", TOTAL: "#1b1b1b"}
 
@@ -60,7 +69,7 @@ with tab_fc:
         issue = pd.Timestamp(dt.datetime.combine(d, t))
         with st.status("Агент работает…", expanded=True) as status:
             try:
-                res = make_agent(mode, issue, runs_dir=OUTPUTS_DIR / "runs", online=True,
+                res = make_agent(mode, issue, runs_dir=OUTPUTS_DIR / "runs_app", online=True,
                                  model=get_model(), force=force).run()
                 st.session_state["res"] = res
                 status.update(label=f"Готово: {res['status']}", state="complete")
@@ -74,6 +83,11 @@ with tab_fc:
         issue_s = Path(res["dir"]).name
         if res["status"] == "unchanged":
             st.info("Входные данные не изменились — агент использовал сохранённый прогноз.")
+        if res.get("fallback"):
+            st.warning(f"LLM недоступна ({res['fallback']}) — прогноз выпущен в режиме правил.")
+        if res.get("usage"):
+            u = res["usage"]
+            st.caption(f"LLM: {u['calls']} запросов, {u['prompt_tokens']} + {u['completion_tokens']} токенов")
         st.plotly_chart(forecast_chart(df, f"Выпуск {issue_s}"), use_container_width=True)
         wide = to_wide(df)
         left, right = st.columns([3, 2])

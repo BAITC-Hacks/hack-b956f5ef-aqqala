@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from ..config import HORIZON_H, LOCAL_TZ_LABEL, NWP_MODELS, OUTPUTS_DIR, to_utc
+from ..config import HORIZON_H, LOCAL_OFFSET, LOCAL_TZ_LABEL, NWP_MODELS, OUTPUTS_DIR, to_utc
 from ..data import load_hourly
 from ..forecast import TOTAL, forecast
 from ..metrics import scores
@@ -17,9 +17,12 @@ from ..model import MODEL_FILE, WindModel
 from ..turbines import load_turbines
 from ..weather import asof, ensure_weather, fingerprint
 
-# Пороги анализа (доли номинала / м/с)
-WIDE_INTERVAL = 0.45
-DISAGREE_WS = 3.0
+# Пороги анализа (доли номинала / м/с), выбраны по распределениям на валидации:
+# ширина P10–P90 — верхний квартиль (≈0.8), ошибка там в 3.5 раза выше, чем в нижнем квартиле;
+# разброс ветра между моделями — верхние 10% (≈7 м/с).
+WIDE_INTERVAL = 0.8
+CONF_HIGH, CONF_MID = 0.4, 0.65  # средняя ширина P10–P90 за 48 ч
+DISAGREE_WS = 7.0
 RAMP = 0.25
 MAX_MISSING = 0.25
 CHANGE_NOTABLE = 0.03
@@ -152,17 +155,15 @@ class Toolbox:
         icing = tot.index[tot.icing_risk > 0]
         ramps = tot.p50.diff().abs()
         ramp_hours = ramps.index[ramps >= RAMP]
-        conf = "высокая"
-        if len(wide) > 12 or len(disagree) > 12:
-            conf = "низкая"
-        elif len(wide) > 4 or len(disagree) > 4:
-            conf = "средняя"
+        width = float((tot.p90 - tot.p10).mean())
+        conf = "высокая" if width < CONF_HIGH else "средняя" if width < CONF_MID else "низкая"
         return {
-            "sane": sane, "confidence": conf,
+            "sane": sane, "confidence": conf, "mean_interval_width": round(width, 3),
             "wide_interval_hours": _ranges(wide), "nwp_disagreement_hours": _ranges(disagree),
             "icing_risk_hours": _ranges(icing), "ramp_hours": _ranges(ramp_hours),
             "turbine_mean_p50": {tb: round(float(g.p50.mean()), 3) for tb, g in per.groupby("turbine")},
-            "total_profile_6h": {str(k): round(float(v), 2) for k, v in tot.p50.resample("6h").mean().items()},
+            "total_profile_6h": {str(k): round(float(v), 2)
+                                 for k, v in tot.p50.resample("6h", origin="start").mean().items()},
         }
 
     def compare_with_previous(self) -> dict:
@@ -196,6 +197,9 @@ class Toolbox:
         a = pd.DataFrame(act)
         a[TOTAL] = a.mean(axis=1, skipna=False)
         known_until = min(a.index.max(), self.issue_utc)
+        if known_until < self.issue_utc - pd.Timedelta(days=days):
+            return {"available": False, "reason": f"факт за последние {days} сут. недоступен "
+                                                  f"(исторические данные заканчиваются {known_until + LOCAL_OFFSET:%d.%m.%Y %H:%M})"}
         errs = []
         for p in sorted(self.runs_dir.glob("*_*")):
             f = p / "forecast.csv"

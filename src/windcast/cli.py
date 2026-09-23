@@ -32,6 +32,11 @@ def cmd_validate(a):
     print(run_all())
 
 
+def cmd_diagnose(a):
+    from .diagnostics import run_all
+    print(run_all())
+
+
 def cmd_forecast(a):
     from .agent import make_agent
     from .forecast import to_wide
@@ -77,6 +82,9 @@ def main(argv=None):
     s = sub.add_parser("validate", help="честная проверка на феврале 2025 и январе 2026")
     s.set_defaults(fn=cmd_validate)
 
+    s = sub.add_parser("diagnose", help="проверки данных: часовой пояс, точность погоды, потолок мощности")
+    s.set_defaults(fn=cmd_diagnose)
+
     s = sub.add_parser("forecast", help="прогноз на 48 ч от момента выпуска")
     s.add_argument("--issue", required=True, help=f"момент выпуска, «ГГГГ-ММ-ДД ЧЧ:ММ» ({LOCAL_TZ_LABEL})")
     s.add_argument("--agent", choices=["rules", "llm"], default="rules")
@@ -87,7 +95,7 @@ def main(argv=None):
     s = sub.add_parser("backtest", help="ежедневные выпуски за период (тест: 31.01–27.02.2026)")
     s.add_argument("--start", default="2026-01-31")
     s.add_argument("--end", default="2026-02-27")
-    s.add_argument("--hours", default="10:00", help="время выпуска через запятую, напр. 10:00,22:00")
+    s.add_argument("--hours", default="10:00,22:00", help="время выпуска (UTC+6) через запятую")
     s.add_argument("--agent", choices=["rules", "llm"], default="rules")
     s.add_argument("--offline", action="store_true")
     s.set_defaults(fn=cmd_backtest)

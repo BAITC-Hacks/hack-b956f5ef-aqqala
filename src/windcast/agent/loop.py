@@ -114,7 +114,8 @@ def render_report(tb: Toolbox, analysis, compare, recent, validation, recomputed
              f"Мощность — в долях номинала. Режим агента: **{mode}**.", ""]
     if summary:
         lines += ["## Сводка агента", "", summary.strip(), ""]
-    lines += ["## Итог", "", f"- Уверенность: **{analysis['confidence']}**",
+    lines += ["## Итог", "", f"- Уверенность: **{analysis['confidence']}** "
+                             f"(средняя ширина P10–P90: {analysis['mean_interval_width']:.2f})",
               f"- Средняя мощность ВЭС: **{tot.p50.mean():.2f}** (P10–P90: {tot.p10.mean():.2f}–{tot.p90.mean():.2f})",
               "- По турбинам: " + ", ".join(f"{k} {v:.2f}" for k, v in analysis["turbine_mean_p50"].items()),
               f"- Модели погоды: {', '.join(tb.nwp_models)}; среднее расхождение ветра "
@@ -124,7 +125,7 @@ def render_report(tb: Toolbox, analysis, compare, recent, validation, recomputed
               for k, v in analysis["total_profile_6h"].items()]
     lines += ["", "## Риски и предупреждения", ""]
     risks = [("Широкий интервал неопределённости", analysis["wide_interval_hours"]),
-             ("Модели погоды расходятся (>3 м/с)", analysis["nwp_disagreement_hours"]),
+             ("Модели погоды сильно расходятся (>7 м/с)", analysis["nwp_disagreement_hours"]),
              ("Риск обледенения (T ≈ 0 °C, влажность ≥ 90%)", analysis["icing_risk_hours"]),
              ("Резкие изменения мощности (≥ 0.25 за час)", analysis["ramp_hours"])]
     any_risk = False
@@ -145,7 +146,7 @@ def render_report(tb: Toolbox, analysis, compare, recent, validation, recomputed
         note = "заметно" if d >= CHANGE_NOTABLE else "незначительно"
         lines.append(f"- Относительно выпуска {pi['issue']} прогноз на общих часах изменился {note}: {d:.3f}.")
     if recent.get("available"):
-        lines.append(f"- Ошибка прошлых выпусков за 7 суток (факт известен): NMAE {recent['NMAE']:.3f}, "
+        lines.append(f"- Ошибка прошлых выпусков за последние 7 суток: NMAE {recent['NMAE']:.3f}, "
                      f"смещение {recent['bias']:+.3f} ({recent['hours']} ч).")
     else:
         lines.append(f"- Оценка по факту недоступна: {recent.get('reason')}.")
