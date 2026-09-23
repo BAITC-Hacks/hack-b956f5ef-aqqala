@@ -7,7 +7,6 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from ..config import HORIZON_H, LOCAL_TZ_LABEL, NWP_MODELS, OUTPUTS_DIR, to_utc
@@ -115,6 +114,16 @@ class Toolbox:
         self.result = forecast(self.issue_local, self.model, self.turbines, nwp_models=self.nwp_models)
         self.input_hash = self._input_hash()
         return self._summary()
+
+    def check_previous_version(self) -> dict:
+        """Есть ли уже прогноз для этого момента выпуска и изменились ли с тех пор входные данные."""
+        h = self._input_hash()
+        meta_file = self.dir / "meta.json"
+        if not meta_file.exists():
+            return {"exists": False, "input_hash": h}
+        old = json.loads(meta_file.read_text())
+        return {"exists": True, "inputs_changed": old.get("input_hash") != h,
+                "old_hash": old.get("input_hash"), "new_hash": h}
 
     def _input_hash(self) -> str:
         parts = [asof(t.id, self.issue_utc, models=self.nwp_models) for t in self.turbines]
@@ -232,7 +241,9 @@ def _ranges(idx) -> list[str]:
         if t is not None and t - prev == pd.Timedelta(hours=1):
             prev = t
             continue
-        out.append(f"{start:%d.%m %H:00}–{prev + pd.Timedelta(hours=1):%H:00}")
+        end = prev + pd.Timedelta(hours=1)
+        out.append(f"{start:%d.%m %H:00}–{end:%H:00}" if end.date() == start.date()
+                   else f"{start:%d.%m %H:00}–{end:%d.%m %H:00}")
         if t is not None:
             start = prev = t
     return out

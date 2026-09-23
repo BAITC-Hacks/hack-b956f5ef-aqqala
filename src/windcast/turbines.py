@@ -38,8 +38,20 @@ def add_turbine(t: Turbine, path=TURBINES_FILE) -> None:
     if not (-90 <= t.lat <= 90 and -180 <= t.lon <= 180):
         raise ValueError("Некорректные координаты")
     items.append(t)
+    _save(items, path)
+
+
+def remove_turbine(tid: str, path=TURBINES_FILE) -> None:
+    """Удалить турбину без истории (исходные T1/T2 удалить нельзя)."""
+    items = load_turbines(path)
+    if any(x.id == tid and x.history for x in items):
+        raise ValueError("Турбину с исторической выборкой удалить нельзя")
+    _save([x for x in items if x.id != tid], path)
+
+
+def _save(items: list[Turbine], path) -> None:
     rows = [{k: v for k, v in asdict(x).items() if v is not None} for x in items]
     with open(path, "w", encoding="utf-8") as f:
         f.write("# Реестр турбин ВЭС. Добавить турбину: `windcast add-turbine --id T3 --lat .. --lon ..`\n")
         f.write("# cap — максимальная нормализованная мощность (потолок), history — CSV со SCADA (если есть).\n")
-        yaml.safe_dump({"turbines": rows}, f, allow_unicode=True, sort_keys=False)
+        yaml.safe_dump({"turbines": rows}, f, allow_unicode=True, sort_keys=False, width=1000)
