@@ -109,7 +109,7 @@ outputs/                       # прогнозы (CSV/JSON), отчёты аг�
 ### Этап 8. Streamlit и deploy
 - [x] Streamlit: ввод даты и времени, график прогноза с P10–P90, таблица по турбинам + итог, добавление турбины, отчёт и лог агента
 - [x] `requirements.txt` для Streamlit Community Cloud
-- [ ] Deploy: владелец пушит репозиторий на GitHub и подключает его в share.streamlit.io (инструкция в README) — **ждёт владельца**
+- [x] Deploy: https://windcast-aq.streamlit.app/ (из личной копии репозитория; перенести на основной после получения admin-доступа)
 
 ### Этап 9. LLM-агент (после основного сценария)
 - [x] Выбор модели по стоимости и качеству tool calling (OpenAI vs NVIDIA NIM), обоснование в README

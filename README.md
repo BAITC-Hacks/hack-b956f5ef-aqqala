@@ -260,4 +260,6 @@ uv run windcast forecast --issue "2026-02-10 10:00" --agent llm --offline
 
 ## Deployed-версия
 
-Пока нет. Приложение подготовлено к развёртыванию на Streamlit Community Cloud: `app.py`, `requirements.txt`, `.streamlit/config.toml`. Инструкция — в разделе «Деплой на Streamlit Community Cloud».
+**https://windcast-aq.streamlit.app/** — Streamlit Community Cloud. LLM-режим работает, если в Secrets приложения задан ключ OpenAI; без ключа агент автоматически переходит в режим правил.
+
+Приложение развёрнуто из личной копии репозитория, так как для деплоя нужны admin-права на исходный репозиторий. Код в копии совпадает с этим репозиторием.
